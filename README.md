@@ -165,9 +165,9 @@ kubectl delete pod [name-of-pod]
 #### _Delete deployment that manages the Pod_
 kubectl delete deployment [name-of-deployment]
 
-Declarative Way
-kubectl apply -f <manifest-file-path>.yml
-kubectl apply -f ./Pods/pod.yml
+### **Declarative Way**
+kubectl apply -f <manifest-file-path>.yml \
+kubectl apply -f ./Pods/pod.yml \ 
 kubectl apply -f ./Pods/multi-pod.yml
 #### _Validate creation/configuration output without_ 
 kubectl apply -f nginx.pod.yml --dry-run=client \
@@ -227,14 +227,14 @@ Services have a NAME created by CoreDNS which resolves to the Pods matched to th
 - NodePorts are between teh range of 30000 to 32767. 
 - ClusterIPs are default
 
-### **Imperative Way (Not the K8s way)**
+### **Imperative Way _(not the k8s way)_**
 kubectl expose pod <pod-name> --name=<name-svc> \ --target-port=8080 --type=NodePort \
 kubectl expose pod hello-pod --name=hello-svc  \ --target-port=8080 --type=NodePort
 
 kubectl delete svc \<name-svc> \
 kubectl delete svc hello-svc \
 
-### **Declarative Way (The K8s way)**
+### **Declarative Way _(the k8s way)_**
 
 kubectl apply -f ./Services/svc-nodeport.yml
 
