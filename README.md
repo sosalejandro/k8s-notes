@@ -150,35 +150,38 @@ Manages either updates and rollbacks
 Replica count, self healing and previous versions
 
 ## **Working with Pods**
-apiVersion: v1 \
-v1alpha1 > v1beta2 > v1 (GA/Stable Prod ready)
+**apiVersion: v1** \
+**v1alpha1 > v1beta2 > v1 (GA/Stable Prod ready)**
 
 livenessProbe (is it alive) \
 readinessProbe (is it ready to receive traffic)
 
 ### **Imperative Way**
+```sh
 kubectl run [podname] --image=nginx:alpine 
-##### _Enable pod container to be called externally_
+# Enable pod container to be called externally
 kubectl port-forward [name-of-pod] 8080:80 
 
 kubectl delete pod [name-of-pod]
-#### _Delete deployment that manages the Pod_
+# Delete deployment that manages the Pod
 kubectl delete deployment [name-of-deployment]
-
+```
 ### **Declarative Way**
-kubectl apply -f <manifest-file-path>.yml \
-kubectl apply -f ./Pods/pod.yml \ 
+```sh
+kubectl apply -f <manifest-file-path>.yml 
+kubectl apply -f ./Pods/pod.yml \
 kubectl apply -f ./Pods/multi-pod.yml
-#### _Validate creation/configuration output without_ 
-kubectl apply -f nginx.pod.yml --dry-run=client \
+# Validate creation/configuration output without
+kubectl apply -f nginx.pod.yml --dry-run=client 
 kubectl get pod my-nginx -o yaml
 
-kubectl get pods --watch \
-kubectl get pods --show-labels \
-kubectl get pods -o wide # More information \
-kubectl describe pods/\<pod-name> \
-kubectl describe pods \<pod-name> \
+kubectl get pods --watch 
+kubectl get pods --show-labels 
+kubectl get pods -o wide # More information 
+kubectl describe pods/\<pod-name> 
+kubectl describe pods \<pod-name> 
 kubectl delete -f \<manifest-file-path>.yml
+```
 
 _pod.yml_
 ```yaml
@@ -228,11 +231,16 @@ Services have a NAME created by CoreDNS which resolves to the Pods matched to th
 - ClusterIPs are default
 
 ### **Imperative Way _(not the k8s way)_**
-kubectl expose pod <pod-name> --name=<name-svc> \ --target-port=8080 --type=NodePort \
-kubectl expose pod hello-pod --name=hello-svc  \ --target-port=8080 --type=NodePort
 
-kubectl delete svc \<name-svc> \
-kubectl delete svc hello-svc \
+```
+kubectl expose pod <pod-name> --name=<name-svc> \ --target-port=8080 --type=NodePort 
+kubectl expose pod hello-pod --name=hello-svc  \ --target-port=8080 --type=NodePort
+```
+
+```
+kubectl delete svc <name-svc> 
+kubectl delete svc hello-svc 
+```
 
 ### **Declarative Way _(the k8s way)_**
 
@@ -269,24 +277,29 @@ spec:
   selector:
     app: web
 ```
-kubectl delete -f <manifest-file-path>.yml \
-kubectl apply -f ./Services/svc-lb.yml \
-kubectl apply -f ./Services/svc-nodeport.yml \
 
-kubectl delete -f ./Services/svc-nodeport.yml \
-kubectl delete -f ./Services/svc-lb.yml \ 
+### **Common commands**
+```sh
+kubectl delete -f <manifest-file-path>.yml 
+kubectl apply -f ./Services/svc-lb.yml 
+kubectl apply -f ./Services/svc-nodeport.yml
+kubectl delete -f ./Services/svc-nodeport.yml 
+kubectl delete -f ./Services/svc-lb.yml 
 kubectl delete svc ps-nodeport
+```
 
 ## **Kubernetes Deployments**
-kubectl get deployments \
+### **Commands**
+```sh
+kubectl get deployments 
 kubectl get deploy
-
-kubectl get deployment --show-labels \
-kubectl get deployment --all-namespaces \
-kubectl get deploy -l app=my-nginx \
-kubectl delete deploy [deploy-name] \
-kubectl scale deploy [deploy-name] --replicas=5 \
+kubectl get deployment --show-labels 
+kubectl get deployment --all-namespaces 
+kubectl get deploy -l app=my-nginx 
+kubectl delete deploy [deploy-name] 
+kubectl scale deploy [deploy-name] --replicas=5 
 kubectl scale -f my-nginx.deploy.yaml --replicas=5
+```
 
 ## **Best Practices**
 ### **Create Pods with Readiness, LivenessProbes and Resource Limits**
