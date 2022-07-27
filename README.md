@@ -371,9 +371,10 @@ spec:
         - containerPort: 8080
 ```
 ## **Kubectl commands**
-kubectl version \
-kubectl cluster-info \
-kubectl get all \
-kubectl run [container-name] --image=[image-name] \
+```sh
+kubectl version 
+kubectl cluster-info 
+kubectl get all 
+kubectl run [container-name] --image=[image-name] 
 kubectl port-forward [pod] [ports]
-
+```
