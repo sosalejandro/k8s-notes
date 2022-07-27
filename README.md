@@ -2,74 +2,78 @@
 k8s notes with basic info and commands
 information learnt/gotten from books and pluralsight courses will be added here.
 
-# Kubernetes
+# **Kubernetes**
 Multi Master H/A Control Plane
 H/A = Highly Available
 
-## Masters: 
+## **Masters:**
 1 is better than 2
+
 3 are better than 1
+
 5 are better than 3 if looking for resilence
+
 5+ can become messy.
 
 Run User/business apps in NODES
 
-kube-apiserver
-Front-end to the control plane
-Exposes the API (REST)
-Consumes JSON/YAML
+### **kube-apiserver**
+- Front-end to the control plane
+- Exposes the API (REST)
+- Consumes JSON/YAML
 
-Cluster Store
-Only persistant component in the entire control plane
-Persists cluster state and config
-Based on etcd 
-Performance is critical
+### **Cluster Store**
+- Only persistant component in the entire control plane
+- Persists cluster state and config
+- Based on etcd 
+- Performance is critical
 
-Kube-controller-manager
-Controller of controllers
-- Node controller
-- Deployment controller
-- Endpoints/EndpointSlice controller
-Watch loops
-Reconciles observed state with desired state
+### **Kube-controller-manager**
+- Controller of controllers:
+  - Node controller
+  - Deployment controller
+  - Endpoints/EndpointSlice controller
+- Watch loops
+- Reconciles observed state with desired state
 
-Kube-scheduler
-Watches API Server for new work tasks
-Assigns work to cluster nodes
-- Affinity/Anti-affinity
-- Constraints
-- Taints
-- Resources...
+### **Kube-scheduler**
+- Watches API Server for new work tasks
+- Assigns work to cluster nodes
+  - Affinity/Anti-affinity
+  - Constraints
+  -   Taints
+  - Resources...
 
-## Nodes:
+## **Nodes**:
 
-Kubelet
-Main Kubernetes agent
-Registers node with clusters
-Watches API server for work tasks (Pods)
-Executes Pods
-Reports back to Masters
+### **Kubelet**
+- Main Kubernetes agent
+- Registers node with clusters
+- Watches API server for work tasks (Pods)
+- Executes Pods
+- Reports back to Masters
 
-Container runtime
-Can be Docker
-Pluggable: Container Runtime Interface (CRI)
+### **Container runtime**
+- Can be Docker
+- Pluggable: Container Runtime Interface (CRI)
 - Docker, containerd, CRI-O, Kata... (Notes: Google gVisor / katacontainers)
-Low-level container intelligence
+- Low-level container intelligence
 
-Kube-proxy
-Networking component
-Pod IP addresses
-Basic load-balancing
+### **Kube-proxy**
+- Networking component
+- Pod IP addresses
+- Basic load-balancing
 
-Node is an environment which holds Nodes, it is to a pod what it is to an app. 
-An abstraction level higher than a Pod with the similar purpose of holding and grouping nodes.
+A node is an environment which holds Pods, it is to a pod what it is to an app.
 
-## Declarative Model and Desired State:
-Declarative model:
+An abstraction level higher than a Pod with the similar purpose of holding and grouping apps, but Pods in this case.
+
+## **Declarative Model and Desired State**:
+### **Declarative model**
 Describe what you want (desired state) in a manifest file
 
 specs.yaml
-```
+```yaml
 kind: Kitchen
 spec:
     type: New
@@ -88,8 +92,8 @@ spec:
     roofGarden: Yes  
 ```
 
-k8s-manifest.spec.yaml
-```
+_k8s-manifest.spec.yaml_
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -107,74 +111,77 @@ spec:
                   ports: 8080
 ```
 
-## Pods:
-Every pod is an execution env
-similar to a single OS or user session which can run multiple apps at the same time
-Therefore these apps share the same IP
-For handling use cases for the same IP they must have unique ports
-just like a single computer instance leveraging multiple apps, with the same ip and port they collide and 1 or the other won't execute
+## **Pods**
+_Every pod is an execution env similar to a single OS or user session which can run multiple apps at the same time. Therefore these apps share the same IP. For handling use cases for the same IP they must have unique ports, just like a single computer instance running  multiple apps, with the same ip and port they will collide and 1 or the other won't execute._
 
 
-Scaling:
-You scale by adding new pods with the apps within them, NOT by adding more instances of the app to an existing pod with it
+### **Scaling**
+_You scale by adding new pods with the apps within them, NOT by adding more instances of the app to an existing pod with it_
 
 Containers in a pod are always scheduled to the same node
 
 Pods are atomically inmortal, they do self-heal
-Phases:
-Pending
-Running
-Succeeded/Failed
+
+### **Phases**
+- Pending
+- Running
+- Succeeded/Failed
 
 
-## Kubernetes service object:
+## **Kubernetes service object**
 Stable name and IP, and DNS used by the load balancing
+
 The way that a Pod belongs to a service or makes it onto the list of Pods that a service will forward traffic to is via Labels
-LABELS ARE THE SIMPLEST AND YET VERY VERY POWERFULL COMPONENT IN K8S
 
-services only sends traffic to healthy pods
-can do session affinity
-can send traffic to endpoints outside the cluster
-cand do tcp and udp
+_LABELS ARE THE SIMPLEST AND YET VERY VERY POWERFULL COMPONENT IN K8S_
 
-## Game Changing Deployments:
+### **Facts**
+- Services only sends traffic to healthy pods
+- Can do session affinity
+- Can send traffic to endpoints outside the cluster
+- Cand do tcp and udp
+
+
+## **Game Changing Deployments**
 Zero downtime rolling updates
+
 Manages either updates and rollbacks
+
 Replica count, self healing and previous versions
 
-## Working with Pods:
-apiVersion: v1
+## **Working with Pods**
+apiVersion: v1 \
 v1alpha1 > v1beta2 > v1 (GA/Stable Prod ready)
 
-livenessProbe (is it alive)
+livenessProbe (is it alive) \
 readinessProbe (is it ready to receive traffic)
 
-Imperative Way
-kubectl run [podname] --image=nginx:alpine
-# Enable pod container to be called externally
+### **Imperative Way**
+kubectl run [podname] --image=nginx:alpine 
+##### _Enable pod container to be called externally_
 kubectl port-forward [name-of-pod] 8080:80 
 
 kubectl delete pod [name-of-pod]
-# Delete deployment that manages the Pod
+#### _Delete deployment that manages the Pod_
 kubectl delete deployment [name-of-deployment]
 
 Declarative Way
 kubectl apply -f <manifest-file-path>.yml
 kubectl apply -f ./Pods/pod.yml
 kubectl apply -f ./Pods/multi-pod.yml
-# Validate creation/configuration output without 
-kubectl apply -f nginx.pod.yml --dry-run=client
+#### _Validate creation/configuration output without_ 
+kubectl apply -f nginx.pod.yml --dry-run=client \
 kubectl get pod my-nginx -o yaml
 
-kubectl get pods --watch
-kubectl get pods --show-labels
-kubectl get pods -o wide # More information
-kubectl describe pods/<pod-name>
-kubectl describe pods <pod-name>
-kubectl delete -f <manifest-file-path>.yml
+kubectl get pods --watch \
+kubectl get pods --show-labels \
+kubectl get pods -o wide # More information \
+kubectl describe pods/\<pod-name> \
+kubectl describe pods \<pod-name> \
+kubectl delete -f \<manifest-file-path>.yml
 
-pod.yml
-```
+_pod.yml_
+```yaml
 kind: Pod
 apiVersion: v1
 metadata:
@@ -189,8 +196,8 @@ spec:
         - containerPort: 8080
 ```
 
-multi-pod.yml
-```
+_multi-pod.yml_
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -207,31 +214,32 @@ spec:
     ports:
     - containerPort: 9113
 ```
-## Kubernetes Services:
+## **Kubernetes Services**:
 Services will be the DNS to export to the outside ports under a certain NAME and low-key load balancing the requests to the underlying Pods routed to the service
 
-Pods have IPs assigned by K8s
+Pods have IPs assigned by K8s \
 Services have a NAME created by CoreDNS which resolves to the Pods matched to the label
+### **Facts**
+- ClusterIP for internal access
+- NodePort for external access
+- LoadBalancer seemingless integrate with the cloud provider native provider to provide access to the Internet
 
-ClusterIP for internal access
-NodePort for external access
-LoadBalancer seemingless integrate with the cloud provider native provider to provide access to the Internet
+- NodePorts are between teh range of 30000 to 32767. 
+- ClusterIPs are default
 
-NodePorts are between teh range of 30000 to 32767.
-ClusterIPs are default
-
-Imperative Way (Not the K8s way)
-kubectl expose pod <pod-name> --name=<name-svc> \ --target-port=8080 --type=NodePort
+### **Imperative Way (Not the K8s way)**
+kubectl expose pod <pod-name> --name=<name-svc> \ --target-port=8080 --type=NodePort \
 kubectl expose pod hello-pod --name=hello-svc  \ --target-port=8080 --type=NodePort
 
-kubectl delete svc <name-svc>
-kubectl delete svc hello-svc
-Declarative Way (The K8s way)
+kubectl delete svc \<name-svc> \
+kubectl delete svc hello-svc \
+
+### **Declarative Way (The K8s way)**
 
 kubectl apply -f ./Services/svc-nodeport.yml
 
-svc-nodeport.yml
-```
+_svc-nodeport.yml_
+```yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -247,8 +255,8 @@ spec:
   selector:
     app: web # Pod resolving the connection
 ```
-svc-lb.yml
-```
+_svc-lb.yml_
+```yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -261,28 +269,28 @@ spec:
   selector:
     app: web
 ```
-kubectl delete -f <manifest-file-path>.yml
-kubectl apply -f ./Services/svc-lb.yml
-kubectl apply -f ./Services/svc-nodeport.yml
+kubectl delete -f <manifest-file-path>.yml \
+kubectl apply -f ./Services/svc-lb.yml \
+kubectl apply -f ./Services/svc-nodeport.yml \
 
-kubectl delete -f ./Services/svc-nodeport.yml
-kubectl delete -f ./Services/svc-lb.yml
+kubectl delete -f ./Services/svc-nodeport.yml \
+kubectl delete -f ./Services/svc-lb.yml \ 
 kubectl delete svc ps-nodeport
 
-## Kubernetes Deployments:
-kubectl get deployments
+## **Kubernetes Deployments**
+kubectl get deployments \
 kubectl get deploy
 
-kubectl get deployment --show-labels
-kubectl get deployment --all-namespaces
-kubectl get deploy -l app=my-nginx
-kubectl delete deploy [deploy-name]
-kubectl scale deploy [deploy-name] --replicas=5
+kubectl get deployment --show-labels \
+kubectl get deployment --all-namespaces \
+kubectl get deploy -l app=my-nginx \
+kubectl delete deploy [deploy-name] \
+kubectl scale deploy [deploy-name] --replicas=5 \
 kubectl scale -f my-nginx.deploy.yaml --replicas=5
 
-## Best Practices:
-Create Pods with Readiness, LivenessProbes and Resource Limits
-```
+## **Best Practices**
+### **Create Pods with Readiness, LivenessProbes and Resource Limits**
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -317,8 +325,8 @@ spec:
       failureThreshold: 1 # Default is 3
 ```
 
-Create Deployments with roollingUpdate strategy, imagePullPolicy
-```
+### **Create Deployments with roollingUpdate strategy, imagePullPolicy**
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -349,10 +357,10 @@ spec:
         ports:
         - containerPort: 8080
 ```
-## Kubectl commands
-kubectl version
-kubectl cluster-info
-kubectl get all
-kubectl run [container-name] --image=[image-name]
+## **Kubectl commands**
+kubectl version \
+kubectl cluster-info \
+kubectl get all \
+kubectl run [container-name] --image=[image-name] \
 kubectl port-forward [pod] [ports]
-------------------------
+
