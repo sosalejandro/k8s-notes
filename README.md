@@ -178,8 +178,8 @@ kubectl get pod my-nginx -o yaml
 kubectl get pods --watch 
 kubectl get pods --show-labels 
 kubectl get pods -o wide # More information 
-kubectl describe pods/\<pod-name> 
-kubectl describe pods \<pod-name> 
+kubectl describe pods/<pod-name> 
+kubectl describe pods <pod-name> 
 kubectl delete -f \<manifest-file-path>.yml
 ```
 
@@ -277,6 +277,34 @@ spec:
   selector:
     app: web
 ```
+
+_external-example.service.yml_
+```yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-service
+spec:
+  type: ExternalName
+  externalName: api.acmecorp.com
+  ports:
+  - port: 9000
+```
+
+## **K8s Storage**
+_Pods live and die so their file system is short-lived (epehemeral)_ \
+_Volumes can be used to starte state/data and use it in a Pod_ \
+_A Pod can have multiple Volumes attached to it_ \
+_Containers rely on a **mountPath** to access a Volume_
+
+
+### **Kubernetes Supports**
+- Volumes
+- PersistentVolumes
+- PersistentVolumeClaims
+- StorageClasses
+
+
 
 ### **Common commands**
 ```sh
