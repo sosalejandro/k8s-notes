@@ -304,6 +304,35 @@ _Containers rely on a **mountPath** to access a Volume_
 - PersistentVolumeClaims
 - StorageClasses
 
+_Volumes in containers have a similar purpose within the Kubernetes context, although, K8s Volumes have more options_
+
+#### **Volumes**
+- A Volume references a storage location.
+- Must have a unique name.
+- Attached to a Pod and may or may not be tied to the Pod's lifetime (depending on the Volume type).
+- A Volume Mount references a Volume by name and defines a mountPath.
+
+#### **Volumes Type**
+- emptyDir
+  - Shares a Pod's lifetime.
+  - Empty directory for storing "transient" data.
+  - Useful for sharing files between containers running in a Pod.
+- hostPath
+  - Pod mounts into the node's filesystem.
+  - Tied to Node lifetime.
+  - Possible lost of data when the Node goes down.
+- nfs (Network File System)
+  - Share mounted within the Pod
+- configMap/secret
+  - Special types of volumes
+  - Provide Pods access to K8s resources
+- persistentVolumeClaim
+  - A far more resilence storage option for Pods
+  - Abstracted from details
+- Cloud
+  - Cluster-wide storage
+- Others
+  - awsElasticBlockStore, azureDisk, azureFile, cephfs, csi, downwardAPI, fc, flexVolume, flocker, gcePersistentDisk, glusterfs, iscsi, local, projected, portworxVolume, quobyte, rbd, scaleIO, storageos, vsphereVolume
 
 
 ### **Common commands**
