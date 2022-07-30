@@ -334,8 +334,141 @@ _Volumes in containers have a similar purpose within the Kubernetes context, alt
 - Others
   - awsElasticBlockStore, azureDisk, azureFile, cephfs, csi, downwardAPI, fc, flexVolume, flocker, gcePersistentDisk, glusterfs, iscsi, local, projected, portworxVolume, quobyte, rbd, scaleIO, storageos, vsphereVolume
 
+### **emptyDir**
+_As long as the pod is alive the data will be available. If the pod goes down, the data created from the pod will be lost_
 
-### **Common commands**
+```yaml
+apiVersion: v1
+kind: Pod
+spec:
+  volumes:
+  - name: html
+    emptyDir: {}
+  containers:
+  - name: nginx
+    image: nginx:alpine
+    volumeMounts:
+      - name: html
+        mountPath: /usr/share/nginx/html
+        readOnly: true
+  - name: html-updater
+    image: alpine
+    command: ["/bin/sh", "-c"]
+    arg:
+      - while true; do date >> /html/index.html;
+        sleep 10; done
+    volumeMounts:
+      - name: html
+        mountPath: /html
+```
+
+### **hostPath**
+- Basic setup
+- Very easy to set up
+- If single worker node it provides and easy way to get started with volumes.
+- Data can be lost if the worker node goes down.
+
+```yaml
+apiVersion: v1
+kind: Pod
+spec: 
+  volumes:
+    - name: docker-socket
+      hostPath:
+        path: /var/run/docker.sock
+        type: Socket
+  containers:
+  - name: docker
+    image: docker
+    command: ["sleep"]
+    args: ["100000"]
+    volumeMounts:
+      - name: docker-socket
+        mountPath: /var/run/docker.sock
+```
+
+### **Cloud Volumes**
+- Azure - Azure Disk and Azure FIle
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  volumes:
+  - name: data
+    azureFile:
+      secretName: <azure-secret>
+      shareName: <share-name>
+      readOnly: false
+  containers:
+  - image: someimage
+    name: my-app
+    volumeMounts:
+    - name: data
+      mountPath: /data/storage
+```
+- AWS - Elastic Block Store
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+sepc:
+  volumes:
+  - name: data
+    awsElasticBlockStore:
+      volumeID: <volume_ID>
+      fsType: ext4
+  containers:
+  - image: someimage
+    name: my-app
+    volumeMounts:
+    - name: data
+      mountPath: /data/storage
+```
+- GCP - GCE Persitent Disk
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  volumes:
+  - name: data
+    gcePersistentDisk:
+      pdName: datastorage
+      fsType: ext4
+  containers:
+  - image: someimage
+    name: my-app
+    volumeMounts:
+    - name: data
+      mountPath: /data/storage
+```
+
+### **Persistent Volume**
+_Is a cluster-wide storage unit provisioned by an administrator with a lifecycle independent from a Pod._
+
+- It could talk to cloud storage
+- It could talk to local storage
+- Is used in conjunction of PersistentVolumeClaim
+- Cluster-wide
+- Relies on network-attached-storage (_NAS_)
+- Usually provisioned by a cluster administrator
+- Available to a Pod even if it gets rescheduled to a different Node
+
+### **Persistent Volume Claim (PVC)**
+_Is a request for a storage unit (Persitent Volume)_
+
+### **Viewing a Pod's Volumes**
+```sh
+kubectl describe pod [pod-name]
+kubectl get pod [pod-name] -o yaml
+```
+
+
+## **Common commands**
 ```sh
 kubectl delete -f <manifest-file-path>.yml 
 kubectl apply -f ./Services/svc-lb.yml 
